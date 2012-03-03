@@ -1,0 +1,138 @@
+<!--
+
+> incluir jquery
+> incluir jqTouch
+> incluir metas aplicativo iOS
+-->
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Garoa Hackerspace Status</title>
+	
+	<script type="text/javascript" src="../static/js/jquery-1.7.1.min.js"></script>
+	<script type="text/javascript" src="../static/js/funcao.js"></script>
+
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="viewport" content="user-scalable=no, width=480" />
+	<link rel="apple-touch-icon-precomposed" href="/static/img/Garoa_aberto.png" />
+	
+	<!-- device-width -->
+	
+	<script type="text/javascript">
+		
+		var TEMPO = 1 * 60 * 1000;
+		
+		function getStatus() {
+			$.getJSON("http://garoahc.appspot.com/status", function(data){
+				$("#status").removeClass().addClass(data.open ? "open" : "closed");
+				setTimeout(getStatus, TEMPO);
+				
+				for (var i=0; i<data.events.length; i++) {
+					var item = data.events[i];
+					if (item.type == "check-in") {
+						if ($("#event_" + item.t).length == 0) {
+							var data_hora = format_date_timestamp(item.t);
+							var layer = $("<li></li>");
+							layer.hide();
+							layer.attr("id", "event_" + item.t);
+							layer.text(data_hora + ": " + item.name);
+							
+							$("#log").prepend(layer);
+							layer.slideDown();
+						}
+					}
+				}	
+			});
+		}
+		
+		
+		$(document).ready(function(){
+			window.moveTo(0, 0);
+			getStatus();
+		});
+		
+		
+	</script>
+	
+	<style type="text/css">
+		body {
+			font-family: Helvetica, Verdana;
+			font-size: 10pt;
+			margin: 0;
+			padding: 10px;
+		}
+		
+		h1 {
+			position: absolute;
+			left: 100px;
+			top: 5px;
+			font-size: 16pt;
+		}
+
+		h2 {
+			position: absolute;
+			left: 100px;
+			top: 35px;
+			font-size: 12pt;
+		}
+
+		#status {
+			/*width: 80px;*/
+			height: 80px;
+			position: relative;
+		}
+		
+		#status img {
+			display: none;
+			width: 80px;
+			height: 80px;
+		}
+		
+		#status.open .open {
+			display: block !important;
+		}
+		#status.closed .closed {
+			display: block !important;
+		}
+		
+		#log {
+			list-style-type: none;
+			margin: 20px 0 0 0;
+			padding: 0;
+		}
+		#log li {
+			padding: 3px 7px;
+			margin: 0;
+		}
+		
+	</style>
+	
+</head>
+<body onorientationchange="updateOrientation();" ontouchmove="BlockMove(event);" >
+
+<div id="content">
+	<!--
+	<img src="../static/img/logo.png" width="120" />
+	-->
+	
+	
+	
+	<div id="status">
+		<img class="open" src="../static/img/Garoa_aberto.png" alt="Garoa Aberto" />
+		<img class="closed" src="../static/img/Garoa_fechado.png" alt="Garoa Fechado" />
+		<h1>Garoa Hacker Clube</h1>
+		<h2>aberto ou fechado</h2>
+	</div>
+
+	<ul id="log">
+		
+	</li>
+</div>
+
+</body>
+</html>
