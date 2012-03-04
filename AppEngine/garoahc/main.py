@@ -123,6 +123,7 @@ class RestHandler(webapp.RequestHandler):
 			elif acao == "close":
 				if not last_log is None and not last_log.closed:
 					last_log.closed = True
+					last_log.closed_in = datetime.now()
 					last_log.put()
 					memcache.delete("log")
 					memcache.add("log", last_log)
@@ -165,6 +166,18 @@ class StatusHandler(webapp.RequestHandler):
 		self.response.headers.add_header("Cache-Control", "no-cache")
 		self.response.out.write(json.dumps(get_data()))
 	
+
+class ImageHandler(webapp.RequestHandler):
+	def get(self):
+		self.response.headers.add_header("Access-Control-Allow-Origin", "*")
+		self.response.headers.add_header("Cache-Control", "no-cache")
+		
+		json_status = get_data()
+		
+		image = json_status["open"] and json_status["icon"]["open"] or json_status["icon"]["closed"]
+		self.redirect(image)
+	
+
 
 
 class FoursquareHandler(webapp.RequestHandler):
@@ -217,7 +230,7 @@ class FoursquareHandler(webapp.RequestHandler):
 		"""
 	
 	
-	
+
 	
 
 def main():
@@ -225,6 +238,7 @@ def main():
 		("/foursquare/push", FoursquareHandler),
 		("/rest/(status)/(open|close)/([\w\d]*)", RestHandler),
 		("/status", StatusHandler),
+		("/status.png", ImageHandler),
 		("/view", MainHandler),
 		("/", StatusHandler),
 	]
