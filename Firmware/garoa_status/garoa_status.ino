@@ -32,11 +32,11 @@ int stringPos = 0; // string index counter
 boolean startRead = false; // is reading?
 
 int pinStatus = LOW;
-long updateDelay= 360000; //One hour
+long updateDelay= 600000; //10 Minutes
 long lastUpdate=0;
 
+
 void setup(){
-  
   pinMode(SENSOR_PIN, INPUT);
   digitalWrite(SENSOR_PIN, HIGH);
   pinStatus = digitalRead(SENSOR_PIN);
@@ -52,6 +52,7 @@ void setup(){
 void loop(){
   //Status changed or last change was to long ago.
   if ( (pinStatus != digitalRead(SENSOR_PIN)) || ( (millis()-lastUpdate) >= updateDelay ) ) {
+    Serial.println("Updating Status");
     updateStatus();
   }
   delay(100);
