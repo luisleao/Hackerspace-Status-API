@@ -14,7 +14,7 @@ byte server[] = { 74, 125, 47, 141 }; //ip Address of the server you will connec
 String location_open = "/rest/status/open";
 String location_close = "/rest/status/close";
 String host = "Host: garoahc.appspot.com";
-String token = "/YOURKEY";
+String token = "/DEADBEEF";
 
 #define SENSOR_PIN 3
 

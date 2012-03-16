@@ -113,9 +113,9 @@ class RestHandler(webapp.RequestHandler):
 				if last_log is None or last_log.closed:
 					last_log = Log()
 					last_log.put()
-					memcache.delete("log")
-					memcache.add("log", last_log)
-					memcache.delete("status")
+					#memcache.delete("log")
+					#memcache.add("log", last_log)
+					#memcache.delete("status")
 					self.response.out.write("<o1>")
 				else:
 					self.response.out.write("<o0>")
@@ -125,13 +125,17 @@ class RestHandler(webapp.RequestHandler):
 					last_log.closed = True
 					last_log.closed_in = datetime.now()
 					last_log.put()
-					memcache.delete("log")
-					memcache.add("log", last_log)
-					memcache.delete("status")
+					#memcache.delete("log")
+					#memcache.add("log", last_log)
+					#memcache.delete("status")
 					self.response.out.write("<o1>")
 				else:
 					self.response.out.write("<o0>")
 					
+			memcache.delete("status")
+			memcache.add("log", last_log)
+			memcache.delete("status")
+				
 		elif objeto == "event":
 			#TODO: implementar registro de outros eventos
 			self.response.out.write("<e0>")
@@ -162,6 +166,7 @@ class StatusHandler(webapp.RequestHandler):
 		if self.request.get("force"):
 			memcache.delete("status")
 		
+		self.response.headers['Content-Type'] = "application/json"
 		self.response.headers.add_header("Access-Control-Allow-Origin", "*")
 		self.response.headers.add_header("Cache-Control", "no-cache")
 		self.response.out.write(json.dumps(get_data()))
@@ -169,6 +174,7 @@ class StatusHandler(webapp.RequestHandler):
 
 class ImageHandler(webapp.RequestHandler):
 	def get(self):
+		self.response.headers['Content-Type'] = "image/png"
 		self.response.headers.add_header("Access-Control-Allow-Origin", "*")
 		self.response.headers.add_header("Cache-Control", "no-cache")
 		
@@ -240,7 +246,7 @@ def main():
 		("/status", StatusHandler),
 		("/status.png", ImageHandler),
 		("/view", MainHandler),
-		("/", StatusHandler),
+		("/", MainHandler),
 	]
 	application = webapp.WSGIApplication(handlers, debug=True)
 	util.run_wsgi_app(application)
