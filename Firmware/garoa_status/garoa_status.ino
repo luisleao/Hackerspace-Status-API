@@ -1,4 +1,3 @@
-
 //ARDUINO 1.0+ ONLY
 #include <Ethernet.h>
 #include <SPI.h>
@@ -33,9 +32,11 @@ int stringPos = 0; // string index counter
 boolean startRead = false; // is reading?
 
 int pinStatus = LOW;
+long updateDelay= 600000; //10 Minutes
+long lastUpdate=0;
+
 
 void setup(){
-  
   pinMode(SENSOR_PIN, INPUT);
   digitalWrite(SENSOR_PIN, HIGH);
   pinStatus = digitalRead(SENSOR_PIN);
@@ -49,7 +50,9 @@ void setup(){
 }
 
 void loop(){
-  if (pinStatus != digitalRead(SENSOR_PIN)) {
+  //Status changed or last change was to long ago.
+  if ( (pinStatus != digitalRead(SENSOR_PIN)) || ( (millis()-lastUpdate) >= updateDelay ) ) {
+    Serial.println("Updating Status");
     updateStatus();
   }
   delay(100);
@@ -57,6 +60,7 @@ void loop(){
 
 void updateStatus() {
     pinStatus = digitalRead(SENSOR_PIN);
+    lastUpdate = millis();
     String pageValue = connectAndRead(); //connect to the server and read the output
     Serial.println(pageValue); //print out the findings.
 }
@@ -120,5 +124,3 @@ String readPage(){
   }
 
 }
-  
-  
