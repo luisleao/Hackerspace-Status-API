@@ -111,28 +111,32 @@ class RestHandler(webapp.RequestHandler):
 			
 			if acao == "open":
 				if last_log is None or last_log.closed:
+					logging.info("NEW OPEN")
 					last_log = Log()
 					last_log.put()
 					#memcache.delete("log")
 					#memcache.add("log", last_log)
 					#memcache.delete("status")
-					self.response.out.write("<o1>")
+					#self.response.out.write("<o1>")
 				else:
-					self.response.out.write("<o0>")
+					logging.info("REFRESH OPEN")
+				self.response.out.write("<o1>")
 				
 			elif acao == "close":
 				if not last_log is None and not last_log.closed:
+					logging.info("NEW CLOSE")
 					last_log.closed = True
 					last_log.closed_in = datetime.now()
 					last_log.put()
 					#memcache.delete("log")
 					#memcache.add("log", last_log)
 					#memcache.delete("status")
-					self.response.out.write("<o1>")
+					#self.response.out.write("<o1>")
 				else:
-					self.response.out.write("<o0>")
+					logging.info("REFRESH OPEN")
+				self.response.out.write("<o1>")
 					
-			memcache.delete("status")
+			memcache.delete("log")
 			memcache.add("log", last_log)
 			memcache.delete("status")
 				
