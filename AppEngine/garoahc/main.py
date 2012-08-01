@@ -18,6 +18,21 @@ import random
 import config
 from datetime import datetime
 
+import Pubnub
+
+
+
+PUBNUB_PUBLISH_KEY = "pub-c7de5874-2d08-45c3-9415-29a29dbc463d"
+PUBNUB_SUBSCRIBE_KEY = "sub-6e561187-8e3a-11e1-8a5c-ff10d706c73e"
+CHANNEL = "garoa_status_api"
+
+pubnub = Pubnub.Pubnub(
+	PUBNUB_PUBLISH_KEY,  ## PUBLISH_KEY
+	PUBNUB_SUBSCRIBE_KEY,  ## SUBSCRIBE_KEY
+	None,    ## SECRET_KEY
+	True    ## SSL_ON?
+)
+
 
 class Log(db.Model):
 	open_in = db.DateTimeProperty(auto_now_add=True)
@@ -135,7 +150,17 @@ class RestHandler(webapp.RequestHandler):
 				else:
 					logging.info("REFRESH OPEN")
 				self.response.out.write("<o1>")
-					
+			
+			logging.info("publishing pubnub...")
+			info = pubnub.publish({
+				'channel' : 'garoa_status_api',
+				'message' : {
+					'open': not last_log.closed,
+					'event': 'status'
+				}
+			})
+			logging.info(info)
+				
 			memcache.delete("log")
 			memcache.add("log", last_log)
 			memcache.delete("status")
@@ -209,9 +234,35 @@ class FoursquareHandler(webapp.RequestHandler):
 			extra = retorno["user"]["photo"]
 		)
 		event.put()
-		
 		memcache.delete("status")
+		
+		# TODO: incluir apenas o checkin
+		checkins = []
+		checkins.append({
+			"name": event.name,
+			"type": event.type,
+			"t": int(time.mktime(event.t.timetuple())),
+			"extra": event.extra
+		})
+		
+		# send data to PubNub
+		logging.info("publishing pubnub...")
+		status = get_data()
+		logging.info(status)
+		
+		info = pubnub.publish({
+			'channel' : 'garoa_status_api',
+			'message' : {
+			    'open': status["open"],
+				'event': 'checkin',
+				'checkin': checkins
+				#'events': status["events"]
+			}
+		})
+		logging.info(info)
+		
 		self.response.out.write("OK")
+		
 		
 		"""
 		{

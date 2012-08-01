@@ -1,0 +1,7 @@
+cron:
+    
+- description: update inactive image
+  url: /schedule/update_image
+  schedule: every 10 minutes synchronized
+  timezone: America/Sao_Paulo
+

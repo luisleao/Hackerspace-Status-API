@@ -1,12 +1,3 @@
-<!--
-
-> incluir jquery
-> incluir jqTouch
-> incluir metas aplicativo iOS
--->
-
-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -30,14 +21,19 @@
 		
 		var TEMPO = 1 * 60 * 1000;
 		
+		function setStatus(open) {
+			$("#status").removeClass().addClass(open ? "open" : "closed");
+			var status = open ? "está aberto" : "está fechado";
+			var texto = "está " + status + " neste momento."
+			$("h2").text(texto);
+			
+		}
+		
 		function getStatus() {
-			$.getJSON("http://garoahc.appspot.com/status", function(data){
-				$("#status").removeClass().addClass(data.open ? "open" : "closed");
-				var status = data.open ? "está aberto" : "está fechado";
-				var texto = "está " + status + " neste momento."
-				$("h2").text(texto);
+			$.getJSON("/status", function(data){
+				setStatus(data.open);
 				
-				setTimeout(getStatus, TEMPO);
+				//setTimeout(getStatus, TEMPO);
 				
 				for (var i=0; i<data.events.length; i++) {
 					var item = data.events[i];
@@ -123,11 +119,6 @@
 <body onorientationchange="updateOrientation();" ontouchmove="BlockMove(event);" >
 
 <div id="content">
-	<!--
-	<img src="../static/img/logo.png" width="120" />
-	-->
-	
-	
 	
 	<div id="status">
 		<img class="open" src="../static/img/Garoa_aberto.png" alt="Garoa Aberto" />
@@ -141,5 +132,67 @@
 	</li>
 </div>
 
+
+<!--
+//pub-key="pub-c7de5874-2d08-45c3-9415-29a29dbc463d"
+//sub-key="sub-6e561187-8e3a-11e1-8a5c-ff10d706c73e" 
+//garoa_status_api
+-->
+
+
+<div sub-key="sub-6e561187-8e3a-11e1-8a5c-ff10d706c73e" ssl="off" origin="pubsub.pubnub.com" id="pubnub"></div>
+
+<script src="http://cdn.pubnub.com/pubnub-3.1.min.js"></script>
+<script>(function(){
+/*
+    var pubnub = PUBNUB({
+        publish_key   : 'demo',
+        subscribe_key : 'demo',
+        origin        : 'pubsub.pubnub.com',
+        ssl           : true
+    });
+*/
+    PUBNUB.subscribe({
+        channel  : 'garoa_status_api',
+        connect  : function() { 
+	 		console.log("connected!");
+		},
+		reconnect  : function() {        // CONNECTION RESTORED.
+			//alert("And we're Back!");
+			console.log("reconnected!");
+		},
+        callback : function(message) {
+			//console.debug("callback");
+			setStatus(message.open);
+			
+			if (message.checkin) {
+				for (var i=0; i<message.checkin.length; i++) {
+					var item = message.checkin[i];
+					if (item.type == "check-in") {
+						if ($("#event_" + item.t).length == 0) {
+							var data_hora = format_date_timestamp(item.t);
+							var layer = $("<li></li>");
+							layer.hide();
+							layer.attr("id", "event_" + item.t);
+							layer.text(data_hora + ": " + item.name);
+							
+							$("#log").prepend(layer);
+							layer.slideDown();
+						}
+					}
+				}	
+			}
+			
+			//TODO: considerar receber checkins em tempo real tambem
+            //alert(JSON.stringify(message));
+        }
+    });
+
+})();</script>
+
 </body>
+
+
+
+
 </html>
