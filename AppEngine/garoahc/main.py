@@ -222,6 +222,8 @@ class FoursquareHandler(webapp.RequestHandler):
 			logging.warning("INVALID SECRET: %s." % self.request.get("secret"))
 			return
 		
+		status = get_data()
+    	
 		retorno = json.loads(self.request.get("checkin"))
 		logging.info(json.dumps(retorno))
 		
@@ -236,7 +238,7 @@ class FoursquareHandler(webapp.RequestHandler):
 		event.put()
 		memcache.delete("status")
 		
-		# TODO: incluir apenas o checkin
+		# incluir apenas o checkin
 		checkins = []
 		checkins.append({
 			"name": event.name,
@@ -246,10 +248,8 @@ class FoursquareHandler(webapp.RequestHandler):
 		})
 		
 		# send data to PubNub
+		#logging.info(status)
 		logging.info("publishing pubnub...")
-		status = get_data()
-		logging.info(status)
-		
 		info = pubnub.publish({
 			'channel' : 'garoa_status_api',
 			'message' : {

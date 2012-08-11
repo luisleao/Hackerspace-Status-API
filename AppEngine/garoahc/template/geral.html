@@ -32,7 +32,6 @@
 		function getStatus() {
 			$.getJSON("/status", function(data){
 				setStatus(data.open);
-				
 				//setTimeout(getStatus, TEMPO);
 				
 				for (var i=0; i<data.events.length; i++) {
@@ -162,7 +161,6 @@
 			console.log("reconnected!");
 		},
         callback : function(message) {
-			//console.debug("callback");
 			setStatus(message.open);
 			
 			if (message.checkin) {
@@ -182,9 +180,6 @@
 					}
 				}	
 			}
-			
-			//TODO: considerar receber checkins em tempo real tambem
-            //alert(JSON.stringify(message));
         }
     });
 
