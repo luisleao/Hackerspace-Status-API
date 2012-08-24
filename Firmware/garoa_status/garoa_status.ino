@@ -1,6 +1,7 @@
 //ARDUINO 1.0+ ONLY
 #include <Ethernet.h>
 #include <SPI.h>
+#include <avr/wdt.h>
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -47,6 +48,8 @@ void setup(){
   }
   Serial.begin(9600);
   updateStatus();
+  
+  wdt_enable(WDTO_8S); //Função que ativa e altera o Watchdog
 }
 
 void loop(){
@@ -56,6 +59,7 @@ void loop(){
     updateStatus();
   }
   delay(100);
+  wdt_reset(); //diz que esta tudo ok para o Watchdog
 }
 
 void updateStatus() {
