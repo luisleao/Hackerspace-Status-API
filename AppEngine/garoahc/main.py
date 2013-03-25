@@ -12,7 +12,8 @@ from google.appengine.ext.webapp import template
 
 
 import time
-import simplejson as json
+#import simplejson as json
+import json
 import logging
 import random
 import config
@@ -38,6 +39,7 @@ class Log(db.Model):
 	open_in = db.DateTimeProperty(auto_now_add=True)
 	closed_in = db.DateTimeProperty()
 	closed = db.BooleanProperty(default=False)
+	#mac = db.IntegerProperty(default=0)
 
 
 class Event(db.Model):
@@ -51,9 +53,11 @@ class Event(db.Model):
 	#t (long int, mandatory) – time since the epoch for this event
 	#extra (string, optional) – additional information
 	
-
-
-
+#class Macs(db.Model):
+    #known = db.IntegerProperty(required=True, default=0)
+    #unknown = db.IntegerProperty(required=True, default=0)
+	#names = db.StringListProperty(required=False)
+    #lastchange = db.DateTimeProperty(auto_now_add=True)
 
 """
 
@@ -109,6 +113,18 @@ def get_data():
 		memcache.add("status", status)
 		
 	return status
+
+def get_macs():
+	# verificar memcache
+	
+	macs = memcache.get("macs")
+	if macs is None:
+		macs = config.JSON_MACS
+		macs["lastchange"] = int(time.mktime(datetime.now().timetuple()))
+		
+		memcache.add("macs", macs)
+		
+	return macs
 
 
 
@@ -171,8 +187,43 @@ class RestHandler(webapp.RequestHandler):
 			
 		else:
 			self.response.out.write("<x0>")
-	
 
+class UpdateMacsHandler(webapp.RequestHandler):
+	def get(self, objeto, acao=None, token=None):
+		
+#		if token != config.ARDUINO_TOKEN:
+#			self.response.out.write("<e9>")
+#			return
+
+		if objeto == "macs":
+			logging.info("UPDATE MACS")
+
+			macs_list=token.split('_')
+			macs_json = get_macs()
+			CADASTRO_MACS = config.CADASTRO_MACS
+
+			known=0
+			unknown=0
+			names=set()
+
+			for atual in macs_list:
+				if atual in CADASTRO_MACS:
+					known+=1
+					names.add(CADASTRO_MACS[atual])
+				else:
+					unknown+=1
+			names = list(names)
+
+			self.response.out.write("<o1>")
+
+			macs_json["known"] = known
+			macs_json["unknown"] = unknown
+			macs_json["names"] = names
+			macs_json["lastchange"] = int(time.mktime(datetime.now().timetuple()))
+			memcache.delete("macs")
+			memcache.add("macs", macs_json)
+		else:
+			self.response.out.write("<x0>")
 
 class MainHandler(webapp.RequestHandler):
 	def get(self):
@@ -199,6 +250,14 @@ class StatusHandler(webapp.RequestHandler):
 		self.response.headers.add_header("Access-Control-Allow-Origin", "*")
 		self.response.headers.add_header("Cache-Control", "no-cache")
 		self.response.out.write(json.dumps(get_data()))
+
+class MacsHandler(webapp.RequestHandler):
+	def get(self):
+		
+		self.response.headers['Content-Type'] = "application/json"
+		self.response.headers.add_header("Access-Control-Allow-Origin", "*")
+		self.response.headers.add_header("Cache-Control", "no-cache")
+		self.response.out.write(json.dumps(get_macs()))
 	
 
 class ImageHandler(webapp.RequestHandler):
@@ -298,10 +357,12 @@ def main():
 	handlers = [
 		("/foursquare/push", FoursquareHandler),
 		("/rest/(status)/(open|close)/([\w\d]*)", RestHandler),
+		("/rest/(macs)/(open|close)/([\w\d]*)", UpdateMacsHandler),
 		("/status", StatusHandler),
+        ("/macs", MacsHandler),
 		("/status.png", ImageHandler),
 		("/view", MainHandler),
-		("/", MainHandler),
+		("/", MainHandler)
 	]
 	application = webapp.WSGIApplication(handlers, debug=True)
 	util.run_wsgi_app(application)
