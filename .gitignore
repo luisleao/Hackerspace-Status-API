@@ -1,3 +1,4 @@
 /AppEngine/garoahc/config.py
 *.pyc
 *.DS_Store
+*~
