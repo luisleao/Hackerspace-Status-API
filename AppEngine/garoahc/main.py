@@ -130,7 +130,6 @@ def get_macs():
 
 class RestHandler(webapp.RequestHandler):
 	def get(self, objeto, acao=None, token=None):
-		
 		if token != config.ARDUINO_TOKEN:
 			self.response.out.write("<e9>")
 			return
@@ -188,17 +187,22 @@ class RestHandler(webapp.RequestHandler):
 		else:
 			self.response.out.write("<x0>")
 
+#http://localhost:8080/rest/macs/1234_4321_1111/1234
+#TODO: Change to POST
 class UpdateMacsHandler(webapp.RequestHandler):
-	def get(self, objeto, acao=None, token=None):
+	#def post(self):
+		#self.request.get("macs")
 		
-#		if token != config.ARDUINO_TOKEN:
-#			self.response.out.write("<e9>")
-#			return
+	def get(self, objeto, macs_str=None, token=None):
+		
+		if token != config.ARDUINO_TOKEN:
+			self.response.out.write("<e9>")
+			return
 
 		if objeto == "macs":
 			logging.info("UPDATE MACS")
 
-			macs_list=token.split('_')
+			macs_list=macs_str.split('_')
 			macs_json = get_macs()
 			CADASTRO_MACS = config.CADASTRO_MACS
 
@@ -258,7 +262,6 @@ class MacsHandler(webapp.RequestHandler):
 		self.response.headers.add_header("Access-Control-Allow-Origin", "*")
 		self.response.headers.add_header("Cache-Control", "no-cache")
 		self.response.out.write(json.dumps(get_macs()))
-	
 
 class ImageHandler(webapp.RequestHandler):
 	def get(self):
@@ -357,7 +360,7 @@ def main():
 	handlers = [
 		("/foursquare/push", FoursquareHandler),
 		("/rest/(status)/(open|close)/([\w\d]*)", RestHandler),
-		("/rest/(macs)/(open|close)/([\w\d]*)", UpdateMacsHandler),
+		("/rest/(macs)/([\w\d]*)/([\w\d]*)", UpdateMacsHandler),
 		("/status", StatusHandler),
         ("/macs", MacsHandler),
 		("/status.png", ImageHandler),
