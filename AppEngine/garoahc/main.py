@@ -115,16 +115,32 @@ def get_data():
 	return status
 
 def get_macs():
-	# verificar memcache
+	# verificar memcache	
+	macs_json = memcache.get("macs")
+	if macs_json is None:
+		macs_json = config.JSON_MACS
+		macs_json["lastchange"] = int(time.mktime(datetime.now().timetuple()))
+		
+	elif (int(time.mktime(datetime.now().timetuple())) - macs_json["lastchange"] > (15*60)): #older than 15min
+		macs_json["known"]={}
+		macs_json["unknown"] = 0
+	else:
+		names=macs_json["known"]
+		clear_old_macs(names)
+		macs_json["known"] = names
+
+	memcache.delete("macs")
+	memcache.add("macs", macs_json)
+		
+	return macs_json
+
+def clear_old_macs(names):
+	logging.info("Clear Old Macs")
 	
-	macs = memcache.get("macs")
-	if macs is None:
-		macs = config.JSON_MACS
-		macs["lastchange"] = int(time.mktime(datetime.now().timetuple()))
-		
-		memcache.add("macs", macs)
-		
-	return macs
+	clone_dict = names.copy()
+	for nome, timestamp in clone_dict.iteritems():
+		if(int(time.mktime(datetime.now().timetuple())) - timestamp > (30*60)): #older than 30min
+			del names[nome]
 
 
 
@@ -206,23 +222,19 @@ class UpdateMacsHandler(webapp.RequestHandler):
 			macs_json = get_macs()
 			CADASTRO_MACS = config.CADASTRO_MACS
 
-			known=0
-			unknown=0
-			names=set()
+			unknown=0;
+			names=macs_json["known"]
 
 			for atual in macs_list:
 				if atual in CADASTRO_MACS:
-					known+=1
-					names.add(CADASTRO_MACS[atual])
+					names[CADASTRO_MACS[atual]]= int(time.mktime(datetime.now().timetuple()))
 				else:
 					unknown+=1
-			names = list(names)
 
 			self.response.out.write("<o1>")
 
-			macs_json["known"] = known
 			macs_json["unknown"] = unknown
-			macs_json["names"] = names
+			macs_json["known"] = names
 			macs_json["lastchange"] = int(time.mktime(datetime.now().timetuple()))
 			memcache.delete("macs")
 			memcache.add("macs", macs_json)
@@ -362,7 +374,7 @@ def main():
 		("/rest/(status)/(open|close)/([\w\d]*)", RestHandler),
 		("/rest/(macs)/([\w\d]*)/([\w\d]*)", UpdateMacsHandler),
 		("/status", StatusHandler),
-        ("/macs", MacsHandler),
+		("/macs", MacsHandler),
 		("/status.png", ImageHandler),
 		("/view", MainHandler),
 		("/", MainHandler)

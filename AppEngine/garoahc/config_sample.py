@@ -52,12 +52,11 @@ JSON_STATUS = {
 
 CADASTRO_MACS = {'1234': 'Lechuga', '4321': 'Lechuga','0000': 'Teste'}
 JSON_MACS = {
-	"known":0,
 	"unknown":0,
-	"names":[],
-	#"names":[
-	  #{"name":"aaaa", "timestamp":12345678},
-	  #{"name":"bbbb", "timestamp":12345679}
-	#],
+	"known":{},
+	#"known":{
+	  #"Lechuga": 123456789,
+	  #"name": timestamp
+	#},
 	"lastchange": 1298244863
 }
