@@ -6,12 +6,12 @@ import os
 host = "http://garoahc.appspot.com";
 location_opened = "/rest/status/open";
 location_closed = "/rest/status/close";
-location_macs = "/rest/status/macs";
-token = "/DEADBEEF";
+location_macs = "/rest/macs";
+token = "/1234";
 
 sensor_pin = 7
 pinStatus = True
-updateDelay = 10 #600 #10 minutes delay
+updateDelay = 600 #10 minutes delay
 lastUpdate=0
 
 #SETUP
@@ -49,7 +49,7 @@ def update_macs():
         macs_str = macs_str.replace("\n",";")
         macs_str = macs_str[:-1]
 
-        macs_url=host+location_macs+token+"/"+macs_str
+        macs_url=host+location_macs+"/"+macs_str+token
         #response = urllib2.urlopen(macs_url)
         print macs_url
 
