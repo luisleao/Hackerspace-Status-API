@@ -39,8 +39,6 @@ class Log(db.Model):
 	open_in = db.DateTimeProperty(auto_now_add=True)
 	closed_in = db.DateTimeProperty()
 	closed = db.BooleanProperty(default=False)
-	#mac = db.IntegerProperty(default=0)
-
 
 class Event(db.Model):
 	name = db.StringProperty(required=True)
@@ -117,11 +115,11 @@ def get_data():
 def get_macs():
 	# verificar memcache	
 	macs_json = memcache.get("macs")
-	if macs_json is None:
+	if macs_json is None: #this is the first update
 		macs_json = config.JSON_MACS
 		macs_json["lastchange"] = int(time.mktime(datetime.now().timetuple()))
 		
-	elif (int(time.mktime(datetime.now().timetuple())) - macs_json["lastchange"] > (15*60)): #older than 15min
+	elif (int(time.mktime(datetime.now().timetuple())) - macs_json["lastchange"] > (15*60)): #last update is older than 15min
 		macs_json["known"]={}
 		macs_json["unknown"] = 0
 	else:
@@ -139,9 +137,8 @@ def clear_old_macs(names):
 	
 	clone_dict = names.copy()
 	for nome, timestamp in clone_dict.iteritems():
-		if(int(time.mktime(datetime.now().timetuple())) - timestamp > (30*60)): #older than 30min
+		if(int(time.mktime(datetime.now().timetuple())) - timestamp > (30*60)): #MAC update older than 30min
 			del names[nome]
-
 
 
 class RestHandler(webapp.RequestHandler):
@@ -287,8 +284,6 @@ class ImageHandler(webapp.RequestHandler):
 		self.redirect(image)
 	
 
-
-
 class FoursquareHandler(webapp.RequestHandler):
 	def post(self):
 		if self.request.get("secret") != config.FOURSQUARE_SECRET:
@@ -363,10 +358,6 @@ class FoursquareHandler(webapp.RequestHandler):
 			"createdAt": 1330384792
 		}
 		"""
-	
-	
-
-	
 
 def main():
 	handlers = [
@@ -386,4 +377,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-
