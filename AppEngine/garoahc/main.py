@@ -12,7 +12,8 @@ from google.appengine.ext.webapp import template
 
 
 import time
-import simplejson as json
+#import simplejson as json
+import json
 import logging
 import random
 import config
@@ -39,7 +40,6 @@ class Log(db.Model):
 	closed_in = db.DateTimeProperty()
 	closed = db.BooleanProperty(default=False)
 
-
 class Event(db.Model):
 	name = db.StringProperty(required=True)
 	type = db.StringProperty(required=True, choices=["check-in", "check-out", "door"], default="check-in")
@@ -51,9 +51,11 @@ class Event(db.Model):
 	#t (long int, mandatory) – time since the epoch for this event
 	#extra (string, optional) – additional information
 	
-
-
-
+#class Macs(db.Model):
+    #known = db.IntegerProperty(required=True, default=0)
+    #unknown = db.IntegerProperty(required=True, default=0)
+	#names = db.StringListProperty(required=False)
+    #lastchange = db.DateTimeProperty(auto_now_add=True)
 
 """
 
@@ -110,11 +112,37 @@ def get_data():
 		
 	return status
 
+def get_macs():
+	# verificar memcache	
+	macs_json = memcache.get("macs")
+	if macs_json is None: #this is the first update
+		macs_json = config.JSON_MACS
+		macs_json["lastchange"] = int(time.mktime(datetime.now().timetuple()))
+		
+	elif (int(time.mktime(datetime.now().timetuple())) - macs_json["lastchange"] > (15*60)): #last update is older than 15min
+		macs_json["known"]={}
+		macs_json["unknown"] = 0
+	else:
+		names=macs_json["known"]
+		clear_old_macs(names)
+		macs_json["known"] = names
+
+	memcache.delete("macs")
+	memcache.add("macs", macs_json)
+		
+	return macs_json
+
+def clear_old_macs(names):
+	logging.info("Clear Old Macs")
+	
+	clone_dict = names.copy()
+	for nome, timestamp in clone_dict.iteritems():
+		if(int(time.mktime(datetime.now().timetuple())) - timestamp > (30*60)): #MAC update older than 30min
+			del names[nome]
 
 
 class RestHandler(webapp.RequestHandler):
 	def get(self, objeto, acao=None, token=None):
-		
 		if token != config.ARDUINO_TOKEN:
 			self.response.out.write("<e9>")
 			return
@@ -171,8 +199,44 @@ class RestHandler(webapp.RequestHandler):
 			
 		else:
 			self.response.out.write("<x0>")
-	
 
+#http://localhost:8080/rest/macs/1234_4321_1111/1234
+#TODO: Change to POST
+class UpdateMacsHandler(webapp.RequestHandler):
+	#def post(self):
+		#self.request.get("macs")
+		
+	def get(self, objeto, macs_str=None, token=None):
+		
+		if token != config.ARDUINO_TOKEN:
+			self.response.out.write("<e9>")
+			return
+
+		if objeto == "macs":
+			logging.info("UPDATE MACS")
+
+			macs_list=macs_str.split('_')
+			macs_json = get_macs()
+			CADASTRO_MACS = config.CADASTRO_MACS
+
+			unknown=0;
+			names=macs_json["known"]
+
+			for atual in macs_list:
+				if atual in CADASTRO_MACS:
+					names[CADASTRO_MACS[atual]]= int(time.mktime(datetime.now().timetuple()))
+				else:
+					unknown+=1
+
+			self.response.out.write("<o1>")
+
+			macs_json["unknown"] = unknown
+			macs_json["known"] = names
+			macs_json["lastchange"] = int(time.mktime(datetime.now().timetuple()))
+			memcache.delete("macs")
+			memcache.add("macs", macs_json)
+		else:
+			self.response.out.write("<x0>")
 
 class MainHandler(webapp.RequestHandler):
 	def get(self):
@@ -199,7 +263,14 @@ class StatusHandler(webapp.RequestHandler):
 		self.response.headers.add_header("Access-Control-Allow-Origin", "*")
 		self.response.headers.add_header("Cache-Control", "no-cache")
 		self.response.out.write(json.dumps(get_data()))
-	
+
+class MacsHandler(webapp.RequestHandler):
+	def get(self):
+		
+		self.response.headers['Content-Type'] = "application/json"
+		self.response.headers.add_header("Access-Control-Allow-Origin", "*")
+		self.response.headers.add_header("Cache-Control", "no-cache")
+		self.response.out.write(json.dumps(get_macs()))
 
 class ImageHandler(webapp.RequestHandler):
 	def get(self):
@@ -212,8 +283,6 @@ class ImageHandler(webapp.RequestHandler):
 		image = json_status["open"] and json_status["icon"]["open"] or json_status["icon"]["closed"]
 		self.redirect(image)
 	
-
-
 
 class FoursquareHandler(webapp.RequestHandler):
 	def post(self):
@@ -289,19 +358,17 @@ class FoursquareHandler(webapp.RequestHandler):
 			"createdAt": 1330384792
 		}
 		"""
-	
-	
-
-	
 
 def main():
 	handlers = [
 		("/foursquare/push", FoursquareHandler),
 		("/rest/(status)/(open|close)/([\w\d]*)", RestHandler),
+		("/rest/(macs)/([\w\d]*)/([\w\d]*)", UpdateMacsHandler),
 		("/status", StatusHandler),
+		("/macs", MacsHandler),
 		("/status.png", ImageHandler),
 		("/view", MainHandler),
-		("/", MainHandler),
+		("/", MainHandler)
 	]
 	application = webapp.WSGIApplication(handlers, debug=True)
 	util.run_wsgi_app(application)
@@ -310,4 +377,3 @@ def main():
 
 if __name__ == '__main__':
 	main()
-

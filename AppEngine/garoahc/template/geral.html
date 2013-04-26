@@ -19,11 +19,11 @@
 	
 	<script type="text/javascript">
 		
-		var TEMPO = 1 * 60 * 1000;
+		var TEMPO = 5 * 60 * 1000;
 		
 		function setStatus(open) {
 			$("#status").removeClass().addClass(open ? "open" : "closed");
-			var status = open ? "está aberto" : "está fechado";
+			var status = open ? "aberto" : "fechado";
 			var texto = "está " + status + " neste momento."
 			$("h2").text(texto);
 			
@@ -52,10 +52,40 @@
 			});
 		}
 		
+		function getMacs() {
+			$.getJSON("/macs", function(data){
+				$("#names").empty();
+				window.data = data;
+				console.log(data);
+				for (name in data.known) {
+					var data_hora = format_date_timestamp(data.known[name]);
+					var layer = $("<li></li>");
+					layer.text(name);
+					layer.attr("title", data_hora);
+					
+					$("#names").append(layer);
+				}
+
+				$("#names li").not(":last").append(", ");
+				
+				if (data.unknown > 0) {
+					var unknown = $("<li></li>");
+					unknown.text(data.unknown + " desconhecido" + (data.unknown == 1 ? "" : "s") + ".");
+					$("#names").append(unknown);
+					
+					if ($("#names li").length > 1) {
+					  $("#names li:last").prepend(" e ");
+					}
+				}
+				setTimeout(getMacs, TEMPO);
+			});
+		}
+		
 		
 		$(document).ready(function(){
 			window.moveTo(0, 0);
 			getStatus();
+			getMacs(); 
 		});
 		
 		
@@ -112,6 +142,10 @@
 			margin: 0;
 		}
 		
+		#names li {
+		  display: inline;
+		}
+		
 	</style>
 	
 </head>
@@ -126,9 +160,15 @@
 		<h2>aberto ou fechado</h2>
 	</div>
 
+	<ul id="names">
+		
+	</ul>
+	
 	<ul id="log">
 		
-	</li>
+	</ul>
+
+	
 </div>
 
 

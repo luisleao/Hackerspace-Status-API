@@ -29,7 +29,7 @@ JSON_STATUS = {
 	"api":"0.12",
 	"space":"Garoa Hacker Clube",
 	"url":"https://garoa.net.br",
-	"address":"Rua Vitorino Carmilo, 459 - Santa Cecília - 01153-000 - São Paulo/SP - Brasil",
+	"address":"Rua Costa Carvalho, 567, Fundos - Pinheiros - 05429-130 - São Paulo/SP - Brasil",
 	"contact": {
 		"phone": "+551136620571",
 		"twitter": "garoahc",
@@ -50,3 +50,13 @@ JSON_STATUS = {
 	"lat":-23.532896
 }
 
+CADASTRO_MACS = {'1234': 'Lechuga', '4321': 'Lechuga','0000': 'Teste'}
+JSON_MACS = {
+	"unknown":0,
+	"known":{},
+	#"known":{
+	  #"Lechuga": 123456789,
+	  #"name": timestamp
+	#},
+	"lastchange": 1298244863
+}
