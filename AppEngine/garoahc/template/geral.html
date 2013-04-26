@@ -23,7 +23,7 @@
 		
 		function setStatus(open) {
 			$("#status").removeClass().addClass(open ? "open" : "closed");
-			var status = open ? "está aberto" : "está fechado";
+			var status = open ? "aberto" : "fechado";
 			var texto = "está " + status + " neste momento."
 			$("h2").text(texto);
 			
