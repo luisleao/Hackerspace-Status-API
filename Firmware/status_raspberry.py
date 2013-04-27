@@ -62,4 +62,4 @@ while True:
                 print "Updating Status"
                 update_status()
                 update_macs()
-        time.sleep(1)
+        time.sleep(30)
