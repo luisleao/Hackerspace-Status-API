@@ -223,7 +223,7 @@ class UpdateMacsHandler(webapp.RequestHandler):
 			names=macs_json["known"]
 
 			for atual in macs_list:
-				if atual in CADASTRO_MACS:
+				if atual.upper() in CADASTRO_MACS:
 					names[CADASTRO_MACS[atual]]= int(time.mktime(datetime.now().timetuple()))
 				else:
 					unknown+=1
