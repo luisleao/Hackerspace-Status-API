@@ -46,7 +46,7 @@ def update_macs():
         macs_str= cmd.read()
         cmd.close()
 
-        macs_str = macs_str.replace("\n",";")
+        macs_str = macs_str.replace("\n","_")
         macs_str = macs_str[:-1]
 
         macs_url=host+location_macs+"/"+macs_str+token
