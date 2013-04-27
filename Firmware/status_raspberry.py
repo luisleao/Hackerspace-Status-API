@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 import urllib2
 import time
+import datetime
 import os
 
 host = "http://garoahc.appspot.com";
@@ -59,7 +60,8 @@ def update_macs():
 while True:
         #Status changed or last change was to long ago.
         if ( (pinStatus != GPIO.input(sensor_pin)) or ( (time.time()-lastUpdate) >= updateDelay ) ):
-                print "Updating Status"
+                print datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+                print "Updating Status"                
                 update_status()
                 update_macs()
         time.sleep(30)
