@@ -46,12 +46,14 @@ def update_macs():
         macs_str= cmd.read()
         cmd.close()
 
+        macs_str = macs_str.replace(":","")
         macs_str = macs_str.replace("\n","_")
         macs_str = macs_str[:-1]
 
         macs_url=host+location_macs+"/"+macs_str+token
-        #response = urllib2.urlopen(macs_url)
-        print macs_url
+        print "Updating Macs: "+macs_str
+        response = urllib2.urlopen(macs_url)
+        #print macs_url
 
 
 while True:
