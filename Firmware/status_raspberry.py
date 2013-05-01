@@ -54,23 +54,23 @@ def get_parametro_xml(item, parametroName):
                         return atributo.data
 def get_macs():
 	######Get Data From Router#####
-	macsXml = urllib2.urlopen("http://192.168.1.1/ajaxQueryDevice.gch")
-	macsXml = xml.dom.minidom.parse(macsXml)
-	itensList = macsXml.getElementsByTagName('Parameters')
+	#macsXml = urllib2.urlopen("http://192.168.1.1/ajaxQueryDevice.gch")
+	#macsXml = xml.dom.minidom.parse(macsXml)
+	#itensList = macsXml.getElementsByTagName('Parameters')
 
-	macs_str = ""
-	for iten in itensList:
-        	macs_str = macs_str + get_parametro_xml(iten, "MACAddress") + "_"
+	#macs_str = ""
+	#for iten in itensList:
+        #	macs_str = macs_str + get_parametro_xml(iten, "MACAddress") + "_"
 	##########
 
 	#####Network Scan#####
-	##macs_command = "sudo nmap -sP 192.168.1.1-154 | egrep -o ..:..:..:..:..:.."
-        #macs_command = "sudo arp-scan --interface eth0 -l | egrep -o ..:..:..:..:..:.."
+	#macs_command = "sudo nmap -sP 192.168.1.1-154 | egrep -o ..:..:..:..:..:.."
+        macs_command = "sudo arp-scan --interface eth0 -l | egrep -o ..:..:..:..:..:.."
 
-        #cmd = os.popen(macs_command)
-        #macs_str= cmd.read()
-        #cmd.close()
-	#macs_str = macs_str.replace("\n","_")
+        cmd = os.popen(macs_command)
+        macs_str= cmd.read()
+        cmd.close()
+	macs_str = macs_str.replace("\n","_")
 	##########
 
         macs_str = macs_str.replace(":","")
