@@ -27,6 +27,7 @@
 			var texto = "está " + status + " neste momento."
 			$("h2").text(texto);
 			
+			getMacs();
 		}
 		
 		function getStatus() {
@@ -77,15 +78,13 @@
 					  $("#names li:last").prepend(" e ");
 					}
 				}
-				setTimeout(getMacs, TEMPO);
 			});
 		}
-		
 		
 		$(document).ready(function(){
 			window.moveTo(0, 0);
 			getStatus();
-			getMacs(); 
+			setInterval(getMacs,TEMPO); 
 		});
 		
 		
