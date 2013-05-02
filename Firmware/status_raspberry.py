@@ -81,7 +81,7 @@ def get_macs():
 def update_macs():
 	macs_str = get_macs()
 
-	#TODO: Update do post
+	#TODO: Update to post
         macs_url=host+location_macs+"/"+macs_str+token
         print "Updating Macs: "+macs_str
         response = urllib2.urlopen(macs_url)
