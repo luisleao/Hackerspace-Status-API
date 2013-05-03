@@ -137,7 +137,7 @@ def clear_old_macs(names):
 	
 	clone_dict = names.copy()
 	for nome, timestamp in clone_dict.iteritems():
-		if(int(time.mktime(datetime.now().timetuple())) - timestamp > (30*60)): #MAC update older than 30min
+		if(int(time.mktime(datetime.now().timetuple())) - timestamp > (15*60)): #MAC update older than 15min
 			del names[nome]
 
 
