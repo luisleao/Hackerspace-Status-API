@@ -66,18 +66,18 @@
 					
 					$("#names").append(layer);
 				}
-
 				$("#names li").not(":last").append(", ");
 				
 				if (data.unknown > 0) {
 					var unknown = $("<li></li>");
-					unknown.text(data.unknown + " desconhecido" + (data.unknown == 1 ? "" : "s") + ".");
+					unknown.text(data.unknown + " desconhecido" + (data.unknown == 1 ? "" : "s"));
 					$("#names").append(unknown);
 					
 					if ($("#names li").length > 1) {
 					  $("#names li:last").prepend(" e ");
 					}
 				}
+					$("#names li:last").append(".");
 			});
 		}
 		
