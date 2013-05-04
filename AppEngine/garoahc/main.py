@@ -218,6 +218,7 @@ class UpdateMacsHandler(webapp.RequestHandler):
 			macs_list=macs_str.split('_')
 			macs_json = get_macs()
 			CADASTRO_MACS = config.CADASTRO_MACS
+			IGNORE_MACS = config.IGNORE_MACS
 
 			unknown=0;
 			names=macs_json["known"]
@@ -226,7 +227,8 @@ class UpdateMacsHandler(webapp.RequestHandler):
 				if atual.upper() in CADASTRO_MACS:
 					names[CADASTRO_MACS[atual.upper()]]= int(time.mktime(datetime.now().timetuple()))
 				else:
-					unknown+=1
+					if atual.upper() not in IGNORE_MACS:
+						unknown+=1
 
 			self.response.out.write("<o1>")
 
