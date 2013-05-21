@@ -97,5 +97,5 @@ while True:
 	        time.sleep(5)
 	except (KeyboardInterrupt, SystemExit):
 		raise
-	except:
-		print "Unexpected error:", sys.exc_info()[0]
+	except Exception,e:
+                print str(e)
