@@ -95,5 +95,7 @@ while True:
 	                update_status()
         	        update_macs()
 	        time.sleep(5)
+	except (KeyboardInterrupt, SystemExit):
+		raise
 	except:
 		print "Unexpected error:", sys.exc_info()[0]
