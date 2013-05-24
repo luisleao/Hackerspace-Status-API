@@ -9,7 +9,6 @@ from google.appengine.api import datastore
 from google.appengine.api import memcache
 from google.appengine.ext.webapp import template
 
-
 import time
 #import simplejson as json
 import json
@@ -136,7 +135,7 @@ def clear_old_macs(names):
 	
 	clone_dict = names.copy()
 	for nome, timestamp in clone_dict.iteritems():
-		if(int(time.mktime(datetime.now().timetuple())) - timestamp > (15*60)): #MAC update older than 15min
+		if(int(time.mktime(datetime.now().timetuple())) - timestamp > (30*60)): #MAC update older than 30min
 			del names[nome]
 
 class RestHandler(webapp.RequestHandler):
