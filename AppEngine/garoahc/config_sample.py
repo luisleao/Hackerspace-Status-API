@@ -50,9 +50,8 @@ JSON_STATUS = {
 	"lat":-23.532896
 }
 
-#MACs must be uppercase
-CADASTRO_MACS = {'7C:C5:37:72:4B:6A': 'Lechuga', '7C:C5:27:72:4B:3A': 'Lechuga','7C:C2:37:72:4B:1A': 'Test'}
-IGNORE_MACS = {'1C:C5:37:72:4B:6A':'Lechuga', '1C:C5:27:72:4B:3A':'Raspberry','1C:C2:37:72:4B:1A':'Algo'}
+MAC_SPREADSHEET_STR = "https://docs.google.com/spreadsheet/pub?key=ZZZZZZZ&single=true&gid=0&output=csv"
+
 JSON_MACS = {
 	"unknown":0,
 	"known":{},

@@ -19,6 +19,9 @@ import random
 import config
 from datetime import datetime
 
+from google.appengine.api import urlfetch
+import cStringIO
+
 import Pubnub
 
 
@@ -217,9 +220,29 @@ class UpdateMacsHandler(webapp.RequestHandler):
 
 			macs_list=macs_str.split('_')
 			macs_json = get_macs()
-			CADASTRO_MACS = config.CADASTRO_MACS
-			IGNORE_MACS = config.IGNORE_MACS
+			#-----
+			#CADASTRO_MACS = config.CADASTRO_MACS
+			#IGNORE_MACS = config.IGNORE_MACS
+			#-----
+			
+			#Get List from google Drive
+			logging.info("Getting Spreadsheet information")
+			MAC_SPREADSHEET_STR = config.MAC_SPREADSHEET_STR
+			result = urlfetch.fetch(MAC_SPREADSHEET_STR)
+			if result.status_code == 200:
+				buf = result.content
+			else:
+				raise Exception('Error getting Spreadsheet information')
+			
+			#Transform CSV to dict
+			lines = buf.split("\n")
+			lines.pop(0)
+			CADASTRO_MACS = {}
 
+			for line in lines:
+			    item = line.split(",")
+			    CADASTRO_MACS[item[0].upper()] = item[1]
+			
 			unknown=0;
 			names=macs_json["known"]
 
@@ -227,11 +250,16 @@ class UpdateMacsHandler(webapp.RequestHandler):
 				if atual.upper() in CADASTRO_MACS:
 					names[CADASTRO_MACS[atual.upper()]]= int(time.mktime(datetime.now().timetuple()))
 				else:
-					if atual.upper() not in IGNORE_MACS:
-						unknown+=1
+					unknown+=1
 
 			self.response.out.write("<o1>")
-
+			
+			#Remove IGNORE
+			try:
+				del names["IGNORE"]
+			except:
+				logging.info("No ignore to remove")
+			
 			macs_json["unknown"] = unknown
 			macs_json["known"] = names
 			macs_json["lastchange"] = int(time.mktime(datetime.now().timetuple()))
