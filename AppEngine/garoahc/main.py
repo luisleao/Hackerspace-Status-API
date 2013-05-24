@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from google.appengine.ext import db
@@ -19,9 +18,10 @@ import random
 import config
 from datetime import datetime
 
+from google.appengine.api import urlfetch
+import cStringIO
+
 import Pubnub
-
-
 
 PUBNUB_PUBLISH_KEY = "pub-c7de5874-2d08-45c3-9415-29a29dbc463d"
 PUBNUB_SUBSCRIBE_KEY = "sub-6e561187-8e3a-11e1-8a5c-ff10d706c73e"
@@ -33,7 +33,6 @@ pubnub = Pubnub.Pubnub(
 	None,    ## SECRET_KEY
 	True    ## SSL_ON?
 )
-
 
 class Log(db.Model):
 	open_in = db.DateTimeProperty(auto_now_add=True)
@@ -140,7 +139,6 @@ def clear_old_macs(names):
 		if(int(time.mktime(datetime.now().timetuple())) - timestamp > (15*60)): #MAC update older than 15min
 			del names[nome]
 
-
 class RestHandler(webapp.RequestHandler):
 	def get(self, objeto, acao=None, token=None):
 		if token != config.ARDUINO_TOKEN:
@@ -217,9 +215,25 @@ class UpdateMacsHandler(webapp.RequestHandler):
 
 			macs_list=macs_str.split('_')
 			macs_json = get_macs()
-			CADASTRO_MACS = config.CADASTRO_MACS
-			IGNORE_MACS = config.IGNORE_MACS
+			
+			#Get List from google Drive
+			logging.info("Getting Spreadsheet information")
+			MAC_SPREADSHEET_STR = config.MAC_SPREADSHEET_STR
+			result = urlfetch.fetch(MAC_SPREADSHEET_STR)
+			if result.status_code == 200:
+				buf = result.content
+			else:
+				raise Exception('Error getting Spreadsheet information')
+			
+			#Transform CSV to dict
+			lines = buf.split("\n")
+			lines.pop(0)
+			CADASTRO_MACS = {}
 
+			for line in lines:
+			    item = line.split(",")
+			    CADASTRO_MACS[item[0].upper()] = item[1]
+			
 			unknown=0;
 			names=macs_json["known"]
 
@@ -227,11 +241,16 @@ class UpdateMacsHandler(webapp.RequestHandler):
 				if atual.upper() in CADASTRO_MACS:
 					names[CADASTRO_MACS[atual.upper()]]= int(time.mktime(datetime.now().timetuple()))
 				else:
-					if atual.upper() not in IGNORE_MACS:
-						unknown+=1
+					unknown+=1
 
 			self.response.out.write("<o1>")
-
+			
+			#Remove IGNORE
+			try:
+				del names["IGNORE"]
+			except:
+				logging.info("No ignore to remove")
+			
 			macs_json["unknown"] = unknown
 			macs_json["known"] = names
 			macs_json["lastchange"] = int(time.mktime(datetime.now().timetuple()))
@@ -254,8 +273,6 @@ class MainHandler(webapp.RequestHandler):
 		}
 		self.response.out.write(template.render("./template/geral.html", template_values))
 		
-	
-
 class StatusHandler(webapp.RequestHandler):
 	def get(self):
 		if self.request.get("force"):
@@ -285,7 +302,6 @@ class ImageHandler(webapp.RequestHandler):
 		image = json_status["open"] and json_status["icon"]["open"] or json_status["icon"]["closed"]
 		self.redirect(image)
 	
-
 class FoursquareHandler(webapp.RequestHandler):
 	def post(self):
 		if self.request.get("secret") != config.FOURSQUARE_SECRET:
@@ -375,7 +391,5 @@ def main():
 	application = webapp.WSGIApplication(handlers, debug=True)
 	util.run_wsgi_app(application)
 	
-
-
 if __name__ == '__main__':
 	main()
