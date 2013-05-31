@@ -72,7 +72,7 @@ while True:
     try:
         macs=macs + get_macs()
         macs = list(set(macs))
-        print "Number of Macs: " + len(macs)
+        print "Number of Macs: " + str(len(macs))
         
         #Status changed or last change was to long ago.
         if ( (pinStatus != GPIO.input(sensor_pin)) or ( (time.time()-lastUpdate) >= updateDelay ) ):
