@@ -18,6 +18,7 @@ pinStatus = True
 updateDelay = 300 #5 minutes delay
 lastUpdate=0
 macs = []
+last_macs = []
 
 #SETUP
 GPIO.setmode(GPIO.BOARD)
@@ -74,12 +75,13 @@ while True:
         macs = list(set(macs))
         print "Number of Macs: " + str(len(macs))
         
-        #Status changed or last change was to long ago.
-        if ( (pinStatus != GPIO.input(sensor_pin)) or ( (time.time()-lastUpdate) >= updateDelay ) ):
+        #Status changed, more macs, or last change was to long ago.
+        if ( (pinStatus != GPIO.input(sensor_pin)) or (len(macs) > len(last_macs)) or ( (time.time()-lastUpdate) >= updateDelay ) ):
             print datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
             print "Updating Status"
             update_status()
             update_macs(macs)
+            last_macs=macs
             macs=[]
         time.sleep(10)
     except (KeyboardInterrupt, SystemExit):
