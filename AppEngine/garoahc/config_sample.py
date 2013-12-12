@@ -46,8 +46,8 @@ JSON_STATUS = {
 	"open":False,
 	"lastchange": 1298244863,
 	"events":[],
-	"lon":-46.65151967777777,
-	"lat":-23.532896
+	"lon":-46.69918,
+	"lat":-23.564968
 }
 
 MAC_SPREADSHEET_STR = "https://docs.google.com/spreadsheet/pub?key=ZZZZZZZ&single=true&gid=0&output=csv"
