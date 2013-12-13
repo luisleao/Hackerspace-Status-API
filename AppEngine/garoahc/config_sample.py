@@ -26,28 +26,69 @@ FACEBOOK_OFFSET_CLOSE = 100
 ARDUINO_TOKEN = "YOUR_ARDUINO_TOKEN"
 
 JSON_STATUS = {
-	"api":"0.12",
+	"api":"0.13",
+
 	"space":"Garoa Hacker Clube",
 	"url":"https://garoa.net.br",
-	"address":"Rua Costa Carvalho, 567, Fundos - Pinheiros - 05429-130 - São Paulo/SP - Brasil",
+	"logo":"https://garoahc.appspot.com/static/img/logo.png",
 	"contact": {
 		"phone": "+551136620571",
 		"twitter": "garoahc",
 		"foursquare": FOURSQUARE_VENUE_ID,
-		"ml":"cs@garoa.net.br",
+		"email":"cs@garoa.net.br",
+		"ml":"hackerspacesp@googlegroups.com"
 		#"keymaster": "+551112345678 (nome)",
 	},
+	"events":[],
+
+	#0.12
+	"address":"Rua Costa Carvalho, 567, Fundos - Pinheiros - 05429-130 - São Paulo/SP - Brasil",
 	"status": "open for public",
-	"logo":"https://garoahc.appspot.com/static/img/logo.png",
 	"icon":{
 		"open":"https://garoahc.appspot.com/static/img/icon_open.png",
 		"closed":"https://garoahc.appspot.com/static/img/icon_closed.png"
 	},
-	"open":False,
+	"open":false,
 	"lastchange": 1298244863,
-	"events":[],
 	"lon":-46.69918,
-	"lat":-23.564968
+	"lat":-23.564968,
+
+	#0.13
+	"state": {
+		"icon": {
+			"open": "https://garoahc.appspot.com/static/img/icon_open.png",
+			"closed": "https://garoahc.appspot.com/static/img/icon_closed.png"
+		},
+		"open": false,
+		"lastchange": 1298244863
+	},
+	
+	"sensors" : {
+		"total_member_count": [
+			{
+				"value" : 41
+			}
+		],
+		"people_now_present": [
+			{
+				"value" : 1,
+				"Names" : [ "desconhecido"]
+			}
+		]
+	},  
+    
+	"location": {
+		"address": "Rua Costa Carvalho, 567, Fundos - Pinheiros - 05429-130 - São Paulo/SP - Brasil",
+		"lon": -46.69918,
+		"lat": -23.564968
+	},
+	"projects":["https://garoa.net.br/wiki/Categoria:Projetos"],
+	"issue_report_channels": [
+		"email"
+	],
+	"cache": {
+		"schedule": "m.05"
+	}
 }
 
 MAC_SPREADSHEET_STR = "https://docs.google.com/spreadsheet/pub?key=ZZZZZZZ&single=true&gid=0&output=csv"

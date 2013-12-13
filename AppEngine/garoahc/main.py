@@ -101,6 +101,7 @@ def get_data():
 				"name": event.name,
 				"type": event.type,
 				"t": int(time.mktime(event.t.timetuple())),
+				"timestamp": int(time.mktime(event.t.timetuple())),
 				"extra": event.extra
 			})
 		
@@ -330,6 +331,7 @@ class FoursquareHandler(webapp.RequestHandler):
 			"name": event.name,
 			"type": event.type,
 			"t": int(time.mktime(event.t.timetuple())),
+			"timestamp": int(time.mktime(event.t.timetuple())),
 			"extra": event.extra
 		})
 		
